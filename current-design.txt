@@ -1,0 +1,105 @@
+------------------------------------------------------------
+PaymentAgentView
+------------------------------------------------------------
+constructor: init state:
+- progress thru payment form
+- isVisible
+- idempotencyKey
+- addListeners(afterAcceptTask, afterCompleteTask)
+- add PAY button to call controls
+
+resetPay()
+- reset state
+
+displayPaymentForm()
+- invokeAction("NavigateToView")
+
+hidePaymentSuccess()
+  resetPay()
+
+addEventToState(item)
+  add item to payment progress
+
+subscribeToSync(token)
+  list items stored under callSid
+  addEventToState(item)
+  subscribe to "itemAdded" event on sync list; calls addEventToState(item)
+  requestCapture("payment-card-number")
+
+showPaymentForm()
+  state.showForm = true
+
+initiateAAP(currency, chargeAmount, paymentMethod, description)
+  set state: currency, chargeAmount
+  state.status = 'initiating'
+  GET runtimeUrl + "/sync-token"
+  then GET runtimeUrl + "/aap-begin-pay-session"
+  then
+    set state.paymentSid, showForm = false
+    subscribeToSync(token) ???
+
+requestCapture(field)
+  GET runtimeUrl + "/aap-capture-parameter"
+  then set state.captureField
+
+processPayment()
+  GET runtimeUrl + "/aap-complete-pay-session"
+
+latestPaymentState()
+  return last progress item
+
+render()
+  use state to decide on displaying view
+  content = PaymentForm, PaymentInProgress, PaymentSuccess or PaymentFailure
+  return <div>{content}</div>
+
+------------------------------------------------------------
+PaymentForm
+------------------------------------------------------------
+constructor: init state:
+- use React.createRef to init currency, amount, method, descr
+
+initiateAAP()
+  call props.initiateAAP(ref.currentValues) // currency, amt, method, descr
+
+render()
+  render form with:
+  - heading "Checkout with Twilio Pay"
+  - inputs for currency, amt, descr
+  - button "Request Payment"
+  
+------------------------------------------------------------
+PaymentInProgress
+------------------------------------------------------------
+render()
+  - heading "Capture Credit Card Information"
+  - <PaymentElement /> for:
+    - card number, expiration date, security code
+    - button "Process Payment"
+
+------------------------------------------------------------
+PaymentSuccess
+------------------------------------------------------------
+render()
+  - heading "Payment Complete"
+  - text: Amount, Confirmation Code
+  - button "Hide"
+
+------------------------------------------------------------
+PaymentFailure
+------------------------------------------------------------
+render()
+  - heading "Payment Failed"
+  - text: Amount, error codes
+
+------------------------------------------------------------
+PaymentElement
+------------------------------------------------------------
+getStyle()
+  use props.paymentState to return background color and image
+
+render()
+  heading: props.friendlyName
+  input value={props.paymentState[props.pascalCaseName]}
+  button: onClick=props.requestCapture(props.riverCaseName)
+    Request {this.props.friendlyName}

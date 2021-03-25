@@ -1,0 +1,20 @@
+Pay connector unique name = Stripe_Connector
+
+Serverless domain name: aap-backend-4138-dev.twil.io
+
+ToDo:
+- remove runtime domain name from payConfig.json
+- PayPage is not needed
+
+
+syncList removal:
+    const listName = `aap:${event.CallSid}`;
+    console.log(`aap-complete-pay-session: removing syncList ${listName}`);
+    await client.sync.services(context.SYNC_SERVICE_SID).syncLists(listName).remove();
+    console.log('aap-complete-pay-session: removed syncList');
+
+Deployment (with hubspot plugin)
+twilio flex:plugins:release --name "ACT Demo Release" \
+--description "Pay has nice icon button" \
+--plugin plugin-pay@0.0.5 \
+--plugin plugin-hubspot@0.0.2

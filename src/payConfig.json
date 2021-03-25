@@ -1,0 +1,17 @@
+{
+    "RUNTIME_URL": "https://aap-backend-4138-dev.twil.io",
+    "CURRENCY_CONFIG":[
+      {
+        "Symbol": "$",
+        "ISO": "usd"
+      },
+      {
+          "Symbol": "£",
+          "ISO": "gbp"
+      },
+      {
+          "Symbol": "€",
+          "ISO": "eur"
+      }
+    ]
+}
